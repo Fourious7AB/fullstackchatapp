@@ -13,7 +13,7 @@ import { app, server } from "./lib/socket.js";
 
 dotenv.config();
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
 
 app.use(express.json());
@@ -24,6 +24,18 @@ app.use(
     credentials: true,
   })
 );
+
+// Set Content Security Policy headers
+app.use((req, res, next) => {
+  res.set({
+    'Content-Security-Policy': "default-src 'self'; connect-src 'self' http://localhost:5001; script-src 'self'; style-src 'self'; img-src 'self' data:"
+  });
+  next();
+});
+
+app.get("/", (req, res) => {
+  res.json({ message: "Backend API is running on port 5001" });
+});
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
